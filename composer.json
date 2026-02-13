@@ -1,0 +1,19 @@
+{
+    "name": "appkit/log-handler-stream",
+    "type": "library",
+    "description": "Stream-based log handlers for the AppKit framework",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "AppKit\\Log\\Handler\\Stream\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "require": {
+        "appkit/log": "^1.0",
+        "react/stream": "^1.4"
+    }
+}
