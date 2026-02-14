@@ -1,6 +1,6 @@
 <?php
 
-namespace AppKit\Log\Handler\Stream;
+namespace AppKit\Log\Handler\Stream\Internal;
 
 use AppKit\Log\Handler\LogHandlerInterface;
 use AppKit\Log\LogLevel;

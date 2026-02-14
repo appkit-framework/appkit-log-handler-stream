@@ -2,6 +2,8 @@
 
 namespace AppKit\Log\Handler\Stream;
 
+use AppKit\Log\Handler\Stream\Internal\AbstractStreamHandler;
+
 use React\Stream\WritableResourceStream;
 
 class StdoutHandler extends AbstractStreamHandler {
