@@ -54,7 +54,7 @@ abstract class AbstractStreamHandler implements LogHandlerInterface {
         // Execution context
         if(!empty($executionContext)) {
              $line .= $this -> onlyTty(self::COLOR_CONTEXT) .
-                  '[' . $this -> formatArray($executionContext) . '] ';
+                  '[' . $this -> formatContextData($executionContext) . '] ';
         }
 
         // Module
@@ -68,11 +68,23 @@ abstract class AbstractStreamHandler implements LogHandlerInterface {
         $line .= '] ';
 
         // Message
+        foreach($localContext as $key => $value) {
+            $replacedCount = 0;
+            $message = str_replace(
+                '{' . $key . '}',
+                $this -> formatContextData($value),
+                $message,
+                $replacedCount
+            );
+            if($replacedCount > 0)
+                unset($localContext[$key]);
+        }
+
         $line .= $this -> onlyTty(self::COLOR_RESET) . $message;
 
         // Local context
         if(!empty($localContext))
-             $line .= ', ' . $this -> formatArray($localContext);
+             $line .= ', ' . $this -> formatContextData($localContext);
 
         // Exception
         if($exception) {
@@ -106,27 +118,37 @@ abstract class AbstractStreamHandler implements LogHandlerInterface {
         return '';
     }
 
-    private function formatArray($array) {
-        $assoc = ! array_is_list($array);
-        $formatted = [];
-
-        foreach($array as $k => $v) {
-            if(is_string($v))
-                $v = '"' . $v . '"';
-            else if(is_bool($v))
-                $v = $v ? 'true' : 'false';
-            else if(is_scalar($v))
-                $v = (string) $v;
-            else if(is_null($v))
-                $v = 'null';
-            else if(is_array($v))
-                $v = '[' . $this -> formatArray($v) . ']';
-            else
-                $v = gettype($v);
-
-            $formatted[] = $assoc ? "$k: $v" : $v;
+    private function formatContextData($data, $decorators = false) {
+        if(is_string($data)) {
+            if($decorators)
+                return '"' . $data . '"';
+            return $data;
         }
 
-        return implode(', ', $formatted);
+        if(is_bool($data))
+            return $data ? 'true' : 'false';
+
+        if(is_scalar($data))
+            return (string) $data;
+
+        if(is_null($data))
+            return 'null';
+
+        if(is_array($data)) {
+            $assoc = ! array_is_list($data);
+            $resultArray = [];
+            foreach($data as $k => $v) {
+                $v = $this -> formatContextData($v, true);
+                $resultArray[] = $assoc ? "$k: $v" : $v;
+            }
+
+            $resultString = implode(', ', $resultArray);
+
+            if($decorators)
+                return '[' . $resultString . ']';
+            return $resultString;
+        }
+
+        return gettype($data);
     }
 }
